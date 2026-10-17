@@ -1,0 +1,622 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Do You Wanna Order? 💙💜</title>
+
+  <style>
+    :root {
+      --blue: #8bd5ff;
+      --blue-dark: #4a9ee8;
+      --purple: #a99bff;
+      --purple-dark: #7967e8;
+      --ink: #34345d;
+      --muted: #77779c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 10%, #bdeaff, transparent 30%),
+        radial-gradient(circle at 88% 16%, #d7ceff, transparent 30%),
+        linear-gradient(135deg, #effaff, #f4f0ff, #e8f5ff);
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: min(1000px, calc(100% - 32px));
+      margin: auto;
+      padding: 35px 0;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 9px 15px;
+      border-radius: 30px;
+      background: #ffffffb8;
+      color: var(--purple-dark);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      font-size: clamp(34px, 6vw, 60px);
+      margin: 18px 0 10px;
+      letter-spacing: -2px;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, var(--blue-dark), var(--purple-dark));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .panel {
+      padding: clamp(18px, 4vw, 30px);
+      border-radius: 28px;
+      background: #ffffffd9;
+      border: 1px solid white;
+      box-shadow: 0 18px 50px #626bb322;
+    }
+
+    .section-title {
+      margin: 0 0 20px;
+      font-size: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 15px;
+    }
+
+    .product {
+      position: relative;
+      text-align: left;
+      min-height: 175px;
+      padding: 18px;
+      border: 1px solid #dcdafa;
+      border-radius: 22px;
+      color: var(--ink);
+      background: linear-gradient(145deg, #fff, #f1f4ff);
+      cursor: pointer;
+      font: inherit;
+      transition: 0.2s ease;
+    }
+
+    .product:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px #7772d52a;
+      border-color: var(--purple-dark);
+    }
+
+    .product:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--blue-dark);
+      outline-offset: 3px;
+    }
+
+    .emoji {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      margin-bottom: 14px;
+      border-radius: 18px;
+      font-size: 32px;
+      background: linear-gradient(140deg, #e0f5ff, #e9e3ff);
+    }
+
+    .product h3 {
+      margin: 0 0 7px;
+      font-size: 17px;
+    }
+
+    .product p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .arrow {
+      position: absolute;
+      right: 17px;
+      top: 17px;
+      color: var(--purple-dark);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 20px;
+    }
+
+    /* Popup background */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: #292b5759;
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.show {
+      display: grid;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      width: min(100%, 480px);
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      padding: 28px;
+      border: 1px solid white;
+      border-radius: 28px;
+      background: linear-gradient(145deg, white, #f0efff);
+      box-shadow: 0 24px 80px #1f255f55;
+      animation: pop 0.28s ease;
+    }
+
+    @keyframes pop {
+      from {
+        transform: translateY(12px) scale(0.95);
+        opacity: 0.5;
+      }
+      to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .close {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      background: #ecebff;
+      color: var(--purple-dark);
+      font-size: 23px;
+      cursor: pointer;
+    }
+
+    .modal-emoji {
+      text-align: center;
+      font-size: 52px;
+      margin: 6px 0 12px;
+    }
+
+    .modal h2 {
+      text-align: center;
+      font-size: 25px;
+      margin: 0 0 12px;
+    }
+
+    .message {
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 17px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: bold;
+      background: linear-gradient(100deg, var(--blue-dark), var(--purple-dark));
+      color: white;
+      box-shadow: 0 8px 20px #7069e53b;
+    }
+
+    .btn:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary {
+      color: var(--purple-dark);
+      background: #eeedff;
+      box-shadow: none;
+    }
+
+    /* Riya delivery tracker */
+    .tracking {
+      margin: 18px 0;
+      padding: 19px;
+      border: 1px solid #dcdafa;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #e8f7ff, #eeeaff);
+    }
+
+    .tracking-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 13px 0;
+      font-size: 14px;
+    }
+
+    .status-icon {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      color: white;
+      background: linear-gradient(135deg, #58b8e9, #8878ef);
+    }
+
+    .delivery-date {
+      margin: 7px 0 15px;
+      font-size: clamp(23px, 5vw, 30px);
+      font-weight: bold;
+      letter-spacing: -1px;
+      color: var(--purple-dark);
+    }
+
+    .fineprint {
+      text-align: center;
+      color: #8585a7;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 20;
+      bottom: 20px;
+      left: 50%;
+      width: max-content;
+      max-width: calc(100% - 30px);
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 17px;
+      border-radius: 30px;
+      background: #37375f;
+      color: white;
+      font-size: 13px;
+      text-align: center;
+      transition: 0.25s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        width: calc(100% - 22px);
+        padding-top: 24px;
+      }
+
+      .product {
+        min-height: 155px;
+        padding: 15px;
+      }
+
+      .modal {
+        padding: 25px 19px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header>
+      <div class="tag">✦ THE VERY SERIOUS SHOPPING DEPARTMENT ✦</div>
+
+      <h1>What do you wanna <span>order?</span> 💙</h1>
+
+      <p class="subtitle">
+        Choose wisely. Your choices say a lot about you.
+        No pressure… but we are judging. 🫶
+      </p>
+    </header>
+
+    <section class="panel">
+      <h2 class="section-title">🛍️ Pick your order</h2>
+
+      <div class="grid">
+        <button class="product" data-item="iphone">
+          <span class="arrow">↗</span>
+          <div class="emoji">📱</div>
+          <h3>iPhone 18 Pro</h3>
+          <p>Because apparently the current phone is ancient.</p>
+        </button>
+
+        <button class="product" data-item="ps5">
+          <span class="arrow">↗</span>
+          <div class="emoji">🎮</div>
+          <h3>PS5</h3>
+          <p>Responsibilities can wait. One more game.</p>
+        </button>
+
+        <button class="product" data-item="alfaham">
+          <span class="arrow">↗</span>
+          <div class="emoji">🍗</div>
+          <h3>Al Faham</h3>
+          <p>A choice that deserves a standing ovation.</p>
+        </button>
+
+        <button class="product" data-item="riya">
+          <span class="arrow">↗</span>
+          <div class="emoji">🎀</div>
+          <h3>Riya</h3>
+          <p>Limited edition. Check delivery details.</p>
+        </button>
+
+        <button class="product" data-item="hotwheels">
+          <span class="arrow">↗</span>
+          <div class="emoji">🏎️</div>
+          <h3>Hot Wheels</h3>
+          <p>Big car dreams. Tiny car budget.</p>
+        </button>
+      </div>
+
+      <p class="footer">
+        Made with questionable decisions and a little bit of ✨magic✨
+      </p>
+    </section>
+  </main>
+
+  <!-- Popup -->
+  <div class="overlay" id="overlay"
+       role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+    <section class="modal">
+      <button class="close" id="close" aria-label="Close popup">×</button>
+
+      <div class="modal-emoji" id="modal-emoji">💜</div>
+      <h2 id="modal-title">Your order</h2>
+      <p class="message" id="modal-message"></p>
+
+      <div id="tracking-container"></div>
+      <div class="actions" id="modal-actions"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const overlay = document.getElementById("overlay");
+    const modalEmoji = document.getElementById("modal-emoji");
+    const modalTitle = document.getElementById("modal-title");
+    const modalMessage = document.getElementById("modal-message");
+    const modalActions = document.getElementById("modal-actions");
+    const trackingContainer = document.getElementById("tracking-container");
+    const closeButton = document.getElementById("close");
+    const toast = document.getElementById("toast");
+
+    // Funny responses for each item
+    const jokes = {
+      iphone: {
+        emoji: "📱",
+        title: "Waste of money detected 💸",
+        message:
+          "Your current phone is fighting for its life to stay relevant. 😭 Your bank account has left the chat.",
+        button: "I know, let me live"
+      },
+
+      ps5: {
+        emoji: "🎮",
+        title: "Responsibilities have left the chat",
+        message:
+          "Congratulations! You are now unavailable for the next 6–8 business months. Please remember to hydrate.",
+        button: "One more game, promise"
+      },
+
+      alfaham: {
+        emoji: "🍗",
+        title: "FINALLY. A genius decision.",
+        message:
+          "Financially? Debatable. Emotionally? Absolutely correct. Order accepted. Diet starts tomorrow. As usual.",
+        button: "I have excellent taste"
+      },
+
+      hotwheels: {
+        emoji: "🏎️",
+        title: "Dream car: unlocked",
+        message:
+          "Bro wants a car but the budget said 1:64 scale. 💀 Parking space not included.",
+        button: "Vroom vroom"
+      }
+    };
+
+    function addButton(label, className, handler) {
+      const button = document.createElement("button");
+      button.className = "btn" + (className ? " " + className : "");
+      button.textContent = label;
+      button.addEventListener("click", handler);
+      modalActions.appendChild(button);
+    }
+
+    function openModal() {
+      overlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+      closeButton.focus();
+    }
+
+    function closeModal() {
+      overlay.classList.remove("show");
+      document.body.style.overflow = "";
+      trackingContainer.replaceChildren();
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2600);
+    }
+
+    function showJoke(item) {
+      const joke = jokes[item];
+
+      modalEmoji.textContent = joke.emoji;
+      modalTitle.textContent = joke.title;
+      modalMessage.textContent = joke.message;
+
+      trackingContainer.replaceChildren();
+      modalActions.replaceChildren();
+
+      addButton(joke.button, "", () => {
+        closeModal();
+        showToast("Order decision recorded. We are concerned. 😭");
+      });
+
+      addButton("Back to menu", "secondary", closeModal);
+
+      openModal();
+    }
+
+    function showRiya() {
+      modalEmoji.textContent = "📦";
+      modalTitle.textContent = "Your order has been dispatched!";
+      modalMessage.textContent =
+        "Congratulations! You ordered Riya. Please review your shipment details below.";
+
+      modalActions.replaceChildren();
+
+      const tracking = document.createElement("div");
+      tracking.className = "tracking";
+
+      tracking.innerHTML = `
+        <div class="tracking-label">ORDER #RIYA-1411</div>
+
+        <div class="status">
+          <span class="status-icon">✓</span>
+          <span>Order confirmed</span>
+        </div>
+
+        <div class="status">
+          <span class="status-icon">✓</span>
+          <span>Dispatched successfully</span>
+        </div>
+
+        <div class="status">
+          <span class="status-icon">↗</span>
+          <span>Delivery pending</span>
+        </div>
+
+        <div class="tracking-label" style="margin-top:18px">
+          EXPECTED DELIVERY DATE
+        </div>
+
+        <div class="delivery-date">November 14, 2026</div>
+
+        <div style="font-size:13px;line-height:1.6;color:#66668c">
+          Cancellation unavailable. Refund policy: Don't even ask.
+          Terms and conditions apply. 💀
+        </div>
+      `;
+
+      trackingContainer.appendChild(tracking);
+
+      addButton("Okay, I'll be ready 🎀", "", () => {
+        closeModal();
+        showToast("Please wait patiently until November 14 📦");
+      });
+
+      addButton("Back to menu", "secondary", closeModal);
+
+      openModal();
+    }
+
+    // Make each product clickable
+    document.querySelectorAll(".product").forEach(card => {
+      card.addEventListener("click", () => {
+        const item = card.dataset.item;
+
+        if (item === "riya") {
+          showRiya();
+        } else {
+          showJoke(item);
+        }
+      });
+    });
+
+    // Close popup with the X button
+    closeButton.addEventListener("click", closeModal);
+
+    // Close popup by clicking outside the card
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) {
+        closeModal();
+      }
+    });
+
+    // Close popup with Escape
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
